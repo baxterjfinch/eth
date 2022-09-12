@@ -1,5 +1,6 @@
 defmodule ETH.Transaction.Builder do
   import ETH.Transaction.Parser
+  require Logger
 
   @moduledoc """
     This module converts transaction parameters as a list or map to
@@ -186,6 +187,8 @@ defmodule ETH.Transaction.Builder do
       value: value,
       data: target_data
     }
+    Logger.info("TX IN PACKAGE #{inspect tx}")
+    tx
   end
 
   defp generate_nonce(nil), do: 0

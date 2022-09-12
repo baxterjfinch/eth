@@ -84,6 +84,25 @@ defmodule ETH.Transaction.Signer do
   def sign_transaction(
         transaction_list = [
           _nonce,
+          _gas_limit,
+          _base_fee,
+          _gas_fee_cap,
+          _to,
+          _value,
+          _data,
+          _v,
+          _r,
+          _s
+        ],
+        <<private_key::binary-size(32)>>
+      )
+      when is_list(transaction_list) do
+    sign_transaction_list_1559(transaction_list, private_key)
+  end
+
+  def sign_transaction(
+        transaction_list = [
+          _nonce,
           _gas_price,
           _gas_limit,
           _to,
@@ -125,6 +144,35 @@ defmodule ETH.Transaction.Signer do
     sig_v = if chain_id > 0, do: initial_v + (chain_id * 2 + 8), else: initial_v
 
     [nonce, gas_price, gas_limit, to, value, data, <<sig_v>>, sig_r, sig_s]
+    |> ExRLP.encode()
+  end
+
+  defp sign_transaction_list_1559(
+         transaction_list = [
+           nonce,
+           gas_limit,
+           base_fee,
+           gas_fee_cap,
+           to,
+           value,
+           data,
+           v,
+           _r,
+           _s
+         ],
+         <<private_key::binary-size(32)>>
+       ) do
+    chain_id = get_chain_id(v, Enum.at(transaction_list, 9))
+    message_hash = hash_transaction(transaction_list, false)
+
+    [signature: signature, recovery: recovery] = secp256k1_signature(message_hash, private_key)
+
+    <<sig_r::binary-size(32)>> <> <<sig_s::binary-size(32)>> = signature
+    initial_v = recovery + 27
+
+    sig_v = if chain_id > 0, do: initial_v + (chain_id * 2 + 8), else: initial_v
+
+    [nonce, gas_limit, base_fee, gas_fee_cap, to, value, data, <<sig_v>>, sig_r, sig_s]
     |> ExRLP.encode()
   end
 end

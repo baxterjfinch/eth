@@ -81,7 +81,7 @@ defmodule ETH.Transaction.Signer do
       end
 
     target_list
-    |> ExRLP.encode_1559()
+    |> ExRLP.encode()
     |> ExKeccak.hash_256
   end
 

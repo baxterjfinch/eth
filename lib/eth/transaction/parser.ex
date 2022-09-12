@@ -142,6 +142,24 @@ defmodule ETH.Transaction.Parser do
   end
 
   def to_list(
+        _transaction = %{
+          nonce: nonce,
+          gas_limit: gas_limit,
+          base_fee: base_fee,
+          gas_fee_cap: gas_fee_cap,
+          to: to,
+          value: value,
+          data: data,
+          v: v,
+          r: r,
+          s: s
+        }
+      ) do
+    [nonce, gas_limit, base_fee, gas_fee_cap, to, value, data, v, r, s]
+    |> Enum.map(fn value -> to_buffer(value) end)
+  end
+
+  def to_list(
         transaction = %{
           nonce: nonce,
           gas_price: gas_price,

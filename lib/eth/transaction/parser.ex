@@ -72,7 +72,7 @@ defmodule ETH.Transaction.Parser do
         _transaction = %{
           nonce: nonce,
           gas_limit: gas_limit,
-          gas_tip_cap: gas_tip_cap,
+          base_fee: base_fee,
           gas_fee_cap: gas_fee_cap,
           to: to,
           value: value,
@@ -85,7 +85,7 @@ defmodule ETH.Transaction.Parser do
     %{
       nonce: to_buffer(nonce),
       gas_limit: to_buffer(gas_limit),
-      gas_tip_cap: to_buffer(gas_tip_cap),
+      base_fee: to_buffer(base_fee),
       gas_fee_cap: to_buffer(gas_fee_cap),
       to: to_buffer(to),
       value: to_buffer(value),
@@ -100,7 +100,7 @@ defmodule ETH.Transaction.Parser do
         _transaction = %{
           nonce: nonce,
           gas_limit: gas_limit,
-          gas_tip_cap: gas_tip_cap,
+          base_fee: base_fee,
           gas_fee_cap: gas_fee_cap,
           to: to,
           value: value,
@@ -110,7 +110,7 @@ defmodule ETH.Transaction.Parser do
     %{
       nonce: to_buffer(nonce),
       gas_limit: to_buffer(gas_limit),
-      gas_tip_cap: to_buffer(gas_tip_cap),
+      base_fee: to_buffer(base_fee),
       gas_fee_cap: to_buffer(gas_fee_cap),
       to: to_buffer(to),
       value: to_buffer(value),
@@ -162,7 +162,7 @@ defmodule ETH.Transaction.Parser do
         transaction = %{
           nonce: nonce,
           gas_limit: gas_limit,
-          gas_tip_cap: gas_tip_cap,
+          base_fee: base_fee,
           gas_fee_cap: gas_fee_cap,
           value: value,
           data: data
@@ -173,7 +173,7 @@ defmodule ETH.Transaction.Parser do
     r = Map.get(transaction, :r, "")
     s = Map.get(transaction, :s, "")
 
-    [nonce, gas_limit, gas_tip_cap, gas_fee_cap, to, value, data, v, r, s]
+    [nonce, gas_limit, base_fee, gas_fee_cap, to, value, data, v, r, s]
     |> Enum.map(fn value -> to_buffer(value) end)
   end
 end

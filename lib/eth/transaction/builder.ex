@@ -150,7 +150,7 @@ defmodule ETH.Transaction.Builder do
     to = Map.get(params, :to, "")
     value = Map.get(params, :value, 0)
     gas_limit = Map.get(params, :gas_limit)
-    gas_tip_cap = Map.get(params, :gas_tip_cap)
+    base_fee = Map.get(params, :base_fee)
     gas_fee_cap = Map.get(params, :gas_fee_cap)
 
     data = Map.get(params, :data, "")
@@ -166,7 +166,7 @@ defmodule ETH.Transaction.Builder do
     %{
       nonce: nonce,
       gas_limit: gas_limit,
-      gas_tip_cap: gas_tip_cap,
+      base_fee: base_fee,
       gas_fee_cap: gas_fee_cap,
       to: to,
       value: value,

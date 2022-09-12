@@ -119,6 +119,28 @@ defmodule ETH.Transaction.Signer do
     sign_transaction_list(transaction_list, decoded_private_key)
   end
 
+
+
+  def sign_transaction(
+        transaction_list = [
+          _nonce,
+          _gas_limit,
+          _base_fee,
+          _gas_fee_cap,
+          _to,
+          _value,
+          _data,
+          _v,
+          _r,
+          _s
+        ],
+        <<encoded_private_key::binary-size(64)>>
+      )
+      when is_list(transaction_list) do
+    decoded_private_key = Base.decode16!(encoded_private_key, case: :mixed)
+    sign_transaction_list(transaction_list, decoded_private_key)
+  end
+
   defp sign_transaction_list(
          transaction_list = [
            nonce,

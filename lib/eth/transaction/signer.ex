@@ -13,6 +13,10 @@ defmodule ETH.Transaction.Signer do
     ExRLP.encode(transaction_list)
   end
 
+  def encode_1559(transaction_list = [_nonce, _gas_limit, _base_fee, _gas_fee_cap, _to, _value, _data, _v, _r, _s]) do
+    ExRLP.encode(transaction_list)
+  end
+
   def hash_transaction(transaction, include_signature \\ true)
 
   def hash_transaction(transaction_list, include_signature) when is_list(transaction_list) do
@@ -44,6 +48,51 @@ defmodule ETH.Transaction.Signer do
           data: _data,
           gas_price: _gas_price,
           gas_limit: _gas_limit,
+          nonce: _nonce
+        },
+        include_signature
+      ) do
+    chain_id = get_chain_id(Map.get(transaction, :v, <<28>>), Map.get(transaction, :chain_id))
+
+    transaction
+    |> Map.delete(:chain_id)
+    |> TransactionParser.to_list()
+    |> List.insert_at(-1, chain_id)
+    |> hash_transaction(include_signature)
+  end
+
+  def hash_transaction_1559(transaction, include_signature \\ true)
+
+  def hash_transaction_1559(transaction_list, include_signature) when is_list(transaction_list) do
+    target_list =
+      case include_signature do
+        true ->
+          transaction_list
+
+        false ->
+          # EIP155 spec:
+          # when computing the hash of a transaction for purposes of signing or recovering,
+          # instead of hashing only the first six elements (ie. nonce, gasprice, startgas, to, value, data),
+          # hash nine elements, with v replaced by CHAIN_ID, r = 0 and s = 0
+          list = Enum.take(transaction_list, 7)
+          v = Enum.at(transaction_list, 7) || <<28>>
+          chain_id = get_chain_id(v, Enum.at(transaction_list, 10))
+          if chain_id > 0, do: list ++ [chain_id, 0, 0], else: list
+      end
+
+    target_list
+    |> ExRLP.encode_1559()
+    |> ExKeccak.hash_256
+  end
+
+  def hash_transaction_1559(
+        transaction = %{
+          to: _to,
+          value: _value,
+          data: _data,
+          gas_limit: _gas_limit,
+          base_fee: _base_fee,
+          gas_fee_cap: _gas_fee_cap,
           nonce: _nonce
         },
         include_signature
@@ -201,6 +250,6 @@ defmodule ETH.Transaction.Signer do
     sig_v = if chain_id > 0, do: initial_v + (chain_id * 2 + 8), else: initial_v
 
     [nonce, gas_limit, base_fee, gas_fee_cap, to, value, data, <<sig_v>>, sig_r, sig_s]
-    |> ExRLP.encode()
+    |> ExRLP.encode_1559()
   end
 end

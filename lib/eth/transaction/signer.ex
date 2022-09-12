@@ -240,7 +240,7 @@ defmodule ETH.Transaction.Signer do
          <<private_key::binary-size(32)>>
        ) do
     chain_id = get_chain_id(v, Enum.at(transaction_list, 9))
-    message_hash = hash_transaction(transaction_list, false)
+    message_hash = hash_transaction_1559(transaction_list, false)
 
     [signature: signature, recovery: recovery] = secp256k1_signature(message_hash, private_key)
 

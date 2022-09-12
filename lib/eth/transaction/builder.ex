@@ -149,7 +149,6 @@ defmodule ETH.Transaction.Builder do
   defp build_params_from_map_1559(params) do
     to = Map.get(params, :to, "")
     value = Map.get(params, :value, 0)
-    gas_limit = Map.get(params, :gas_limit)
     base_fee = Map.get(params, :base_fee)
     gas_fee_cap = Map.get(params, :gas_fee_cap)
 
@@ -162,6 +161,21 @@ defmodule ETH.Transaction.Builder do
 
     nonce = Map.get_lazy(params, :nonce, fn -> generate_nonce(Map.get(params, :from)) end)
     chain_id = Map.get(params, :chain_id, 3)
+
+    gas_limit =
+      Map.get_lazy(
+        params,
+        :gas_limit,
+        fn ->
+          ETH.estimate_gas!(%{
+            to: to,
+            value: value,
+            data: target_data,
+            nonce: nonce,
+            chain_id: chain_id
+          })
+        end
+      )
 
     %{
       nonce: nonce,

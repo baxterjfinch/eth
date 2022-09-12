@@ -63,6 +63,12 @@ defmodule ETH.Transaction.Signer do
     |> sign_transaction(private_key)
   end
 
+  def sign_transaction_1559(transaction, private_key) when is_map(transaction) do
+    transaction
+    |> ETH.Transaction.to_list()
+    |> sign_transaction_1559(private_key)
+  end
+
   def sign_transaction(
         transaction_list = [
           _nonce,
@@ -81,7 +87,7 @@ defmodule ETH.Transaction.Signer do
     sign_transaction_list(transaction_list, private_key)
   end
 
-  def sign_transaction(
+  def sign_transaction_1559(
         transaction_list = [
           _nonce,
           _gas_limit,
@@ -121,7 +127,7 @@ defmodule ETH.Transaction.Signer do
 
 
 
-  def sign_transaction(
+  def sign_transaction_1559(
         transaction_list = [
           _nonce,
           _gas_limit,
@@ -138,7 +144,7 @@ defmodule ETH.Transaction.Signer do
       )
       when is_list(transaction_list) do
     decoded_private_key = Base.decode16!(encoded_private_key, case: :mixed)
-    sign_transaction_list(transaction_list, decoded_private_key)
+    sign_transaction_list_1559(transaction_list, decoded_private_key)
   end
 
   defp sign_transaction_list(

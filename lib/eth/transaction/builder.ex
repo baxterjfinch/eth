@@ -20,6 +20,12 @@ defmodule ETH.Transaction.Builder do
     |> parse
   end
 
+  def build_1559(params) when is_map(params) do
+    params
+    |> build_params_from_map_1559
+    |> parse
+  end
+
   def build(wallet, params) do
     result =
       cond do
@@ -134,6 +140,34 @@ defmodule ETH.Transaction.Builder do
       nonce: nonce,
       gas_price: gas_price,
       gas_limit: gas_limit,
+      to: to,
+      value: value,
+      data: target_data
+    }
+  end
+
+  defp build_params_from_map_1559(params) do
+    to = Map.get(params, :to, "")
+    value = Map.get(params, :value, 0)
+    gas_limit = Map.get(params, :gas_limit)
+    gas_tip_cap = Map.get(params, :gas_tip_cap)
+    gas_fee_cap = Map.get(params, :gas_fee_cap)
+
+    data = Map.get(params, :data, "")
+
+    target_data =
+      if data !== "" && !String.starts_with?(data, "0x"),
+        do: "0x" <> Hexate.encode(data),
+        else: data
+
+    nonce = Map.get_lazy(params, :nonce, fn -> generate_nonce(Map.get(params, :from)) end)
+    chain_id = Map.get(params, :chain_id, 3)
+
+    %{
+      nonce: nonce,
+      gas_limit: gas_limit,
+      gas_tip_cap: gas_tip_cap,
+      gas_fee_cap: gas_fee_cap,
       to: to,
       value: value,
       data: target_data

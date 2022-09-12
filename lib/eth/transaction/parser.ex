@@ -71,8 +71,9 @@ defmodule ETH.Transaction.Parser do
   def parse(
         _transaction = %{
           nonce: nonce,
-          gas_price: gas_price,
           gas_limit: gas_limit,
+          gas_tip_cap: gas_tip_cap,
+          gas_fee_cap: gas_fee_cap,
           to: to,
           value: value,
           data: data,
@@ -83,8 +84,9 @@ defmodule ETH.Transaction.Parser do
       ) do
     %{
       nonce: to_buffer(nonce),
-      gas_price: to_buffer(gas_price),
       gas_limit: to_buffer(gas_limit),
+      gas_tip_cap: to_buffer(gas_tip_cap),
+      gas_fee_cap: to_buffer(gas_fee_cap),
       to: to_buffer(to),
       value: to_buffer(value),
       data: to_buffer(data),
@@ -97,8 +99,9 @@ defmodule ETH.Transaction.Parser do
   def parse(
         _transaction = %{
           nonce: nonce,
-          gas_price: gas_price,
           gas_limit: gas_limit,
+          gas_tip_cap: gas_tip_cap,
+          gas_fee_cap: gas_fee_cap,
           to: to,
           value: value,
           data: data
@@ -106,8 +109,9 @@ defmodule ETH.Transaction.Parser do
       ) do
     %{
       nonce: to_buffer(nonce),
-      gas_price: to_buffer(gas_price),
       gas_limit: to_buffer(gas_limit),
+      gas_tip_cap: to_buffer(gas_tip_cap),
+      gas_fee_cap: to_buffer(gas_fee_cap),
       to: to_buffer(to),
       value: to_buffer(value),
       data: to_buffer(data)
@@ -152,6 +156,24 @@ defmodule ETH.Transaction.Parser do
     s = Map.get(transaction, :s, "")
 
     [nonce, gas_price, gas_limit, to, value, data, v, r, s]
+    |> Enum.map(fn value -> to_buffer(value) end)
+  end
+  def to_list(
+        transaction = %{
+          nonce: nonce,
+          gas_limit: gas_limit,
+          gas_tip_cap: gas_tip_cap,
+          gas_fee_cap: gas_fee_cap,
+          value: value,
+          data: data
+        }
+      ) do
+    to = Map.get(transaction, :to, "")
+    v = Map.get(transaction, :v, <<28>>)
+    r = Map.get(transaction, :r, "")
+    s = Map.get(transaction, :s, "")
+
+    [nonce, gas_limit, gas_tip_cap, gas_fee_cap, to, value, data, v, r, s]
     |> Enum.map(fn value -> to_buffer(value) end)
   end
 end
